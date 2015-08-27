@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, random, time
+import os, sys, random, time
 
 random.seed(time.time())
 
@@ -21,6 +21,9 @@ class Stack:
 
     def size(self):
         return len(self.__elts)
+
+    def __str__(self):
+        return '['+' '.join([str(e) for e in self.__elts])+']'
 
 
 class Coord:
@@ -50,14 +53,22 @@ class Coord:
         if self.__ymax != 0:
             self.__y = self.__y % self.__ymax
 
-
 def print_grid(grid):
     
+    ret = ''
+    tmp = ''
     for y in range(0, len(grid)):
-        for x in range(0, len(grid[y])):
-            sys.stdout.write(grid[y][x])
-        sys.stdout.write('\n')
-    sys.stdout.write('\n')
+        char = [ord(e) for e in grid[y]]
+        if max(char)==32 and min(char)==32:
+            tmp += ''.join(grid[y])+'\n'
+        else:
+            if tmp!='':
+                ret+=tmp
+                tmp =''
+
+            ret += ''.join(grid[y])
+            ret += ('\n')
+    sys.stdout.write(ret + '\n')
 
 RIGHT = Coord(1,0)
 LEFT = Coord(-1,0)
@@ -66,6 +77,7 @@ DOWN = Coord(0,1)
 DIRECTIONS = {'^':UP, 'v':DOWN, '>':RIGHT, '<':LEFT}
 # /HELPERS
 
+DEBUG = bool(os.getenv('BFG_DEBUG', False))
 
 # PARSING
 def parse(code):
@@ -73,15 +85,20 @@ def parse(code):
     lines = code.replace('\r','').split('\n')
     lines_lens = [len(l) for l in lines]
 
-    height = min(25, len(lines))
-    width = min(max(lines_lens), 80)
+    height = 25 #min(25, len(lines))
+    width = 80 #min(max(lines_lens), 80)
 
     grid = []
 
     for y in range(0, height):
         grid.append([])
         for x in range(0, width):
-            grid[y].append('' if x>=lines_lens[y] else lines[y][x])
+            if y>=len(lines_lens) or x>=lines_lens[y]:
+                v = ' '
+            else:
+                v = lines[y][x]
+            
+            grid[y].append(v)
 
     # init
     stringMode = False
@@ -91,6 +108,11 @@ def parse(code):
 
     # run
     while True:
+
+        if DEBUG:
+            print 'Stack: %s\nCoords: (%d,%d)\nGrid:' % (str(stack), pc.getX(), pc.getY())
+            print_grid(grid)
+
         c = pc.on(grid)
 
         if stringMode:
@@ -171,6 +193,29 @@ def parse(code):
 
             if c=='"':
                 stringMode = True
+
+            if c=='~':
+                v = sys.stdin.read(1)
+                stack.push(-1 if v=='' else ord(v))
+
+            if c=='&':
+                stack.push(int(raw_input('> ')))
+
+            if c=='g':
+                y = stack.pop()
+                x = stack.pop()
+                if x>=width or y>=height or x<0 or y<0:
+                    stack.push(0)
+                else:
+                    stack.push(ord(grid[y][x]))
+
+            if c=='p':
+                y = stack.pop()
+                x = stack.pop()
+                v = stack.pop()
+
+                if not (x>=width or y>=height or x<0 or y<0):
+                    grid[y][x] = chr(v%256)
 
         pc.add(direction)
 
