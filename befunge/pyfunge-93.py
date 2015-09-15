@@ -8,7 +8,7 @@ random.seed(time.time())
 class Stack:
 
     def __init__(self):
-        self.clear()        
+        self.clear()
 
     def clear(self):
         self.__elts = []
@@ -46,7 +46,7 @@ class Coord:
     def add(self, c):
         self.__x += c.getX()
         self.__y += c.getY()
-    
+
         if self.__xmax != 0:
             self.__x = self.__x % self.__xmax
 
@@ -54,7 +54,7 @@ class Coord:
             self.__y = self.__y % self.__ymax
 
 def print_grid(grid):
-    
+
     ret = ''
     tmp = ''
     for y in range(0, len(grid)):
@@ -97,7 +97,7 @@ def parse(code):
                 v = ' '
             else:
                 v = lines[y][x]
-            
+
             grid[y].append(v)
 
     # init
@@ -124,10 +124,10 @@ def parse(code):
             if c in ['+','-','*','/','%', '`']:
                 a = stack.pop()
                 b = stack.pop()
-            
+
                 if c=='+':
                     stack.push(a+b)
-                    
+
                 if c=='-':
                     stack.push(b-a)
 
@@ -223,7 +223,7 @@ def parse(code):
 if __name__=='__main__':
 
     if len(sys.argv)<2:
-        print 'Usage: python %s <file.bfg>'
+        print 'Usage: python %s <file.bfg>' % sys.argv[0]
         sys.exit(1)
 
     f = open(sys.argv[1], 'r')
