@@ -4,7 +4,6 @@
 #include <strings.h>
 
 #define PATH_MAX_SIZE 256
-//#define DEBUG
 
 int main(int argc, char** argv)
 {
@@ -48,10 +47,11 @@ int main(int argc, char** argv)
 
 	fputs("#include <stdio.h>\n", fout);
 	fputs("#include <stdlib.h>\n\n", fout);
+	fputs("#define N_CELLS 65536\n\n", fout);
 	fputs("int main() {\n\n", fout);
-	fputs("\tchar cells[256] = {0};\n", fout);
+	fputs("\tint cells[N_CELLS] = {0};\n", fout);
 	fputs("\tchar tmp;\n", fout);
-	fputs("\tchar pnt=0;\n\n", fout);
+	fputs("\tint pnt=0;\n\n", fout);
 
 	while((c=getc(fin))!=EOF)
 	{
@@ -76,11 +76,11 @@ int main(int argc, char** argv)
 				break;
 
 			case '>':
-				fputs("\tpnt++;\n", fout);
+				fputs("\tpnt=(pnt+1)%N_CELLS;\n", fout);
 				break;
 
 			case '<':
-				fputs("\tpnt--;\n", fout);
+				fputs("\tpnt=(pnt-1)%N_CELLS;\n", fout);
 				break;
 
 			case ',':
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 				break;
 
 			case '.':
-				fputs("\tputc(cells[pnt], stdout);\n", fout);
+				fputs("\tputc((char) cells[pnt], stdout);\n", fout);
 				break;
 
 			case '[':
